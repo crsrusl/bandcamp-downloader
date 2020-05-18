@@ -2,7 +2,9 @@ const _ = require('lodash')
 const request = require('request')
 const fs = require('fs');
 const axios = require('axios')
+const NodeID3 = require('node-id3')
 const artistPage = process.argv[2]
+
 
 if (!_.startsWith(artistPage, 'http')) {
   console.log('bad url');
@@ -33,15 +35,24 @@ request(artistPage, function (err, response, body) {
 
     _.each(format, function (item) {
       if (item)
-        axios({
-          method: 'get',
-          url: item.url,
-          responseType: 'stream'
-        })
+        axios({method: 'get', url: item.url, responseType: 'stream'})
         .then(function (response) {
-          response.data.pipe(fs.createWriteStream(`./${albumName}/${item.title}.mp3`));
+          let write = fs.createWriteStream(`./${albumName}/${item.title}.mp3`);
+          response.data.pipe(write);
+          write.on('finish', () => {
+            let file = `./${albumName}/${item.title}.mp3`;
+            let tags = {
+              title: item.title,
+              artist: item.artist,
+              album: item.album,
+            }
+            let success = NodeID3.write(tags, file) 
+            if (success===true) {
+              console.log('saved: ', tags)
+            }
+          });
         })
         .catch(err => console.log(err));
     });
   }
-})
+});
