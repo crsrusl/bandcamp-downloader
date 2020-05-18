@@ -55,6 +55,9 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
             if (success===true) {
               console.log('saved: ', tags)
             }
+            else {
+              console.log('error: error saving ID3 tag for ', tags)
+            }
           });
         })
         .catch(err => console.log(err));
