@@ -12,7 +12,7 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
     const body = response.data;
     const data = body.split('trackinfo: ')[1].split('}],')[0] + '}]';
     const parsed = JSON.parse(data);
-    const albumTitle = body.split('album_title: ')[1].split(',')[0].split('"')[1]
+    const albumTitle = body.split('album_title: ')[1].split(',')[0].split('"')[1];
     const artist = body.split('artist: ')[1].split(',')[0].split('"')[1];
     const albumName = `./downloads/${artist.replace(/\//g, '-')} - ${albumTitle.replace(/\//g, '-')}`;
 
@@ -22,12 +22,13 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
           title: item.title,
           url: item.file["mp3-128"],
           album: albumTitle,
-          artist: artist
+          artist: artist,
+          trackNumber: item.track_num
         }
     });
 
     if (!fs.existsSync(albumName)){
-      fs.mkdirSync(albumName);
+      fs.mkdirSync(`./downloads/${artist.replace(/\//g, '-')} - ${albumTitle.replace(/\//g, '-')}`);
     }
 
     format.forEach(function (item) {
@@ -35,15 +36,22 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
         axios({method: 'get', url: item.url, responseType: 'stream'})
         .then(function (response) {
           let write = fs.createWriteStream(`./${albumName}/${item.title}.mp3`);
+
           response.data.pipe(write);
+
           write.on('finish', () => {
             let file = `./${albumName}/${item.title}.mp3`;
             let tags = {
               title: item.title,
               artist: item.artist,
               album: item.album,
+              trackNumber: item.trackNumber,
+              comment: {
+                text: artistPage
+              }
             }
-            let success = NodeID3.write(tags, file) 
+            let success = NodeID3.write(tags, file);
+
             if (success===true) {
               console.log('saved: ', tags)
             }
