@@ -1,25 +1,22 @@
-const _ = require('lodash')
-const request = require('request')
 const fs = require('fs');
 const axios = require('axios')
 const NodeID3 = require('node-id3')
 const artistPage = process.argv[2]
 
-
-if (!_.startsWith(artistPage, 'http')) {
-  console.log('bad url');
+if (!artistPage) {
+  console.log('Need URL');
   process.exit(1);
 }
 
-request(artistPage, function (err, response, body) {
-  if (!err && response.statusCode == 200) {
+axios.get(artistPage, {responseType: 'text'}).then(function (response) {
+    const body = response.data;
     const data = body.split('trackinfo: ')[1].split('}],')[0] + '}]';
     const parsed = JSON.parse(data);
     const albumTitle = body.split('album_title: ')[1].split(',')[0].split('"')[1]
     const artist = body.split('artist: ')[1].split(',')[0].split('"')[1];
     const albumName = `./downloads/${artist.replace(/\//g, '-')} - ${albumTitle.replace(/\//g, '-')}`;
 
-    const format = _.map(parsed, function (item) {
+    const format = parsed.map(function (item) {
       if (item && item.file && item.file["mp3-128"])
         return {
           title: item.title,
@@ -33,7 +30,7 @@ request(artistPage, function (err, response, body) {
       fs.mkdirSync(albumName);
     }
 
-    _.each(format, function (item) {
+    format.forEach(function (item) {
       if (item)
         axios({method: 'get', url: item.url, responseType: 'stream'})
         .then(function (response) {
@@ -54,5 +51,4 @@ request(artistPage, function (err, response, body) {
         })
         .catch(err => console.log(err));
     });
-  }
-});
+}).catch(err => console.log(err))

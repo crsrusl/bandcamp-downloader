@@ -12,8 +12,6 @@
   "dependencies": {
     "axios": "^0.19.2",
     "axois": "0.0.1-security",
-    "lodash": ">=4.17.12",
-    "node-id3": "^0.1.16",
-    "request": "^2.67.0"
+    "node-id3": "^0.1.16"
   }
 }
