@@ -1,6 +1,8 @@
 const fs = require('fs');
-const axios = require('axios')
-const NodeID3 = require('node-id3')
+const axios = require('axios');
+const NodeID3 = require('node-id3');
+const Entities = require('html-entities').AllHtmlEntities;
+const entities = new Entities();
 const artistPage = process.argv[2]
 
 if (!artistPage) {
@@ -17,7 +19,8 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
     const artworkURL =  'https://f4.bcbits.com/img/' + artID;
     const artist = body.split('artist: ')[1].split(',')[0].split('"')[1];
     const albumName = `./downloads/${artist.replace(/\//g, '-')} - ${albumTitle.replace(/\//g, '-')}`;
-
+    const genre = entities.decode(body.split('<a class="tag"')[1].split('>')[1].split('</a')[0]);
+    
     const format = parsed.map(function (item) {
       if (item && item.file && item.file["mp3-128"])
         return {
@@ -26,7 +29,8 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
           album: albumTitle,
           artist: artist,
           trackNumber: item.track_num,
-          artworkURL: artworkURL
+          artworkURL: artworkURL,
+          genre: genre
         }
     });
 
@@ -61,6 +65,7 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
                 title: item.title,
                 artist: item.artist,
                 album: item.album,
+                genre: item.genre,
                 trackNumber: item.trackNumber,
                 comment: {
                   text: artistPage
@@ -77,10 +82,10 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
               let success = NodeID3.write(tags, file);
   
               if (success===true) {
-                console.log('saved: ', tags.artist, tags.title)
+                console.log('saved: ', tags.artist, tags.title, tags.genre);
               }
               else {
-                console.log('error: error saving ID3 tag for ', tags)
+                console.log('error: error saving ID3 tag for ', tags);
               }
             });
           })
