@@ -1,4 +1,4 @@
-Its ugly, but it works!
+It's ugly, but it works!
 
 ## Usage
 
@@ -13,7 +13,6 @@ node index.js <url>
 URL format should be like this style 
 
 https://secousse.bandcamp.com/album/mandinka-dong
-https://maltemarten-yatao.bandcamp.com/album/the-great-pandora
 
 etc.
 
@@ -23,10 +22,6 @@ etc.
 node index.js
 ```
 
-Make sure to include a batch.txt file in the root directory and format as follows:
-
-https://url.com
-https://url.com
-https://url.com
+Make sure to include a batch.txt file in the root directory and follow formatting style found in the batch_example.txt
 
 Do not include any new lines before or after the URLs or it won't work.
