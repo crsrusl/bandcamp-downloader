@@ -4,13 +4,34 @@ const NodeID3 = require('node-id3');
 const Entities = require('html-entities').AllHtmlEntities;
 const entities = new Entities();
 const artistPage = process.argv[2]
+const batchPath = './batch.txt'
+let urls;
 
-if (!artistPage) {
-  console.log('Need URL');
+if (artistPage) {
+  get(artistPage);
+}
+else if(fs.existsSync(batchPath)) {
+  fs.readFile(batchPath, 'utf8', (err, data) => {
+    if (err) throw err;
+    urls = data.split('\n');
+
+    console.log(urls);
+
+    get(urls[urls.length-1], urls.length);
+  });}
+else {
+  console.log('No URL or batch.txt');
   process.exit(1);
 }
 
-axios.get(artistPage, {responseType: 'text'}).then(function (response) {
+
+function get(artistPage, i) {
+  if (i < 0) {
+    console.log('Finished');
+  }
+  else {
+
+  axios.get(artistPage, {responseType: 'text'}).then(function (response) {
     const body = response.data;
     const data = body.split('trackinfo: ')[1].split('}],')[0] + '}]';
     const parsed = JSON.parse(data);
@@ -19,7 +40,14 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
     const artworkURL =  'https://f4.bcbits.com/img/' + artID;
     const artist = body.split('artist: ')[1].split(',')[0].split('"')[1];
     const albumName = `./downloads/${artist.replace(/\//g, '-')} - ${albumTitle.replace(/\//g, '-')}`;
-    const genre = entities.decode(body.split('<a class="tag"')[1].split('>')[1].split('</a')[0]);
+    let genre;
+
+    if (body.split('<a class="tag"')[1]) {
+      genre = entities.decode(body.split('<a class="tag"')[1].split('>')[1].split('</a')[0]);
+    }
+    else {
+      genre = "unknown"
+    }
     
     const format = parsed.map(function (item) {
       if (item && item.file && item.file["mp3-128"])
@@ -83,9 +111,14 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
   
               if (success===true) {
                 console.log('saved: ', tags.artist, tags.title, tags.genre);
+                i--;
+                get(urls[i], i);
+
               }
               else {
                 console.log('error: error saving ID3 tag for ', tags);
+                i--;
+                get(urls[i], i);
               }
             });
           })
@@ -93,3 +126,5 @@ axios.get(artistPage, {responseType: 'text'}).then(function (response) {
       });
     }
 }).catch(err => console.log(err))
+  }
+}
