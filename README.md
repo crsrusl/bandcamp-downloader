@@ -1,22 +1,8 @@
 It's ugly, but it works!
 
-## Usage
+# Usage
 
-There are two ways to download tracks:
-
-# Command line argument, single url
-
-```bash
-node index.js <url>
-```
-
-URL format should be like this style 
-
-https://secousse.bandcamp.com/album/mandinka-dong
-
-etc.
-
-# Batch download via batch.txt
+## Batch download via batch.txt
 
 ```bash
 node index.js
