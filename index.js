@@ -12,24 +12,8 @@ if (fs.existsSync(batchPath)) {
         get(urls[urls.length - 1], urls.length);
     });
 } else {
-    console.log('No URL or batch.txt');
+    console.log('No batch.txt');
     process.exit(1);
-}
-
-function createTrackList(trackData) {
-    const artist = trackData.artist;
-    const albumTitle = trackData.current.title;
-
-    return trackData.trackinfo.map(function (item) {
-        if (item && item.file && item.file["mp3-128"])
-            return {
-                title: item.title,
-                url: item.file["mp3-128"],
-                album: albumTitle,
-                artist: artist,
-                trackNumber: item.track_num,
-            }
-    });
 }
 
 function get(artistPage, i) {
@@ -106,4 +90,20 @@ function get(artistPage, i) {
             }
         }).catch(err => console.log(err))
     }
+}
+
+function createTrackList(trackData) {
+    const artist = trackData.artist;
+    const albumTitle = trackData.current.title;
+
+    return trackData.trackinfo.map(function (item) {
+        if (item && item.file && item.file["mp3-128"])
+            return {
+                title: item.title,
+                url: item.file["mp3-128"],
+                album: albumTitle,
+                artist: artist,
+                trackNumber: item.track_num,
+            }
+    });
 }
