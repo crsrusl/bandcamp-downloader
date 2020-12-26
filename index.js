@@ -69,7 +69,9 @@ function get(artistPage, i) {
                                             name: "front cover"
                                         },
                                         imageBuffer: albumArtworkBuffer
-                                    }
+                                    },
+                                    artistUrl: artistPage,
+                                    commercialUrl: artistPage
                                 }
                                 let success = NodeID3.write(tags, file);
 
