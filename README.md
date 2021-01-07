@@ -1,3 +1,5 @@
+# bandcamp-downloader v1 is no longer supported, please use: https://github.com/crsrusl/bandcamp-downloader-v2
+
 It's ugly, but it works!
 
 # Usage
